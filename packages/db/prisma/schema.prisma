@@ -434,6 +434,13 @@ model AIConstitution {
 // approval (Round 4 Decision 5, Round 4 Decision 9). Starts empty — Cold
 // Start Phase 1 (Round 4 Decision 5) means the Chief of Staff must function
 // correctly before any of this exists.
+//
+// classification defaults to Tier 3 (AI Available), not Tier 1 — see
+// architecture-decisions.md Round 10. This corrects an earlier undiscussed
+// Tier 1 default: the Personal Constitution's entire purpose is to be
+// consulted by the AI on every reasoning pass (the Three-Constitution
+// model), unlike Tier 1's actual examples (raw journal entries,
+// credentials). Same reasoning applies to every sub-entity below.
 model PersonalConstitution {
   id             String     @id @default(uuid())
   workspaceId    String     @unique
@@ -453,7 +460,7 @@ model PersonalConstitution {
   createdBy      String
   updatedBy      String
   source         String?
-  classification Int        @default(1)
+  classification Int        @default(3)
 
   visionStatements   PersonalConstitutionVisionStatement[]
   identityStatements PersonalConstitutionIdentityStatement[]
@@ -491,7 +498,7 @@ model PersonalConstitutionVisionStatement {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_vision_statement")
@@ -519,7 +526,7 @@ model PersonalConstitutionIdentityStatement {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_identity_statement")
@@ -548,7 +555,7 @@ model PersonalConstitutionValue {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_value")
@@ -577,7 +584,7 @@ model PersonalConstitutionNonNegotiable {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_non_negotiable")
@@ -605,7 +612,7 @@ model PersonalConstitutionDecisionPrinciple {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_decision_principle")
@@ -635,7 +642,7 @@ model PersonalConstitutionBoundary {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_boundary")
@@ -663,7 +670,7 @@ model PersonalConstitutionSuccessDefinition {
   createdBy              String
   updatedBy              String
   source                 String?
-  classification         Int                  @default(1)
+  classification         Int                  @default(3)
 
   @@index([personalConstitutionId])
   @@map("personal_constitution_success_definition")

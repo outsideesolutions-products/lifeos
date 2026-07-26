@@ -354,6 +354,18 @@ While implementing the AI Provider Interface (`ai/providers`), Round 3 Decision 
 
 ---
 
+## Round 10 — Personal Constitution Data Classification (raised during Milestone 1 implementation, user-decided)
+
+While wiring the Chief of Staff orchestrator to consult the Personal Constitution (required on every reasoning pass per the Three-Constitution model), Round 9's classification gate surfaced a genuine contradiction rather than a mere inference: `PersonalConstitution` and its 7 sub-entities (vision statements, identity statements, values, non-negotiables, decision principles, boundaries, success definitions) had been defaulted to **Data Classification Tier 1 (Local Only)** when the Constitution schema was built — a choice made in isolation, never checked against Round 1 Decision 4's tiers, and never discussed. Under Round 9's gate, Tier 1 content cannot reach the external AI Provider Interface without per-request explicit authorization — which would have made the Chief of Staff unable to consult the Personal Constitution without the user re-authorizing on every single message, directly contradicting "the AI must be functional with zero Personal Constitution data" (Round 4 Decision 5) and the product's core premise.
+
+This was presented to the user as a genuine architectural contradiction (not resolved unilaterally), with three options: reclassify to Tier 3, keep Tier 1 with one-time onboarding consent, or keep Tier 1 with per-message authorization.
+
+**Decision:** Reclassify `PersonalConstitution` and all 7 sub-entities' default `classification` from Tier 1 to **Tier 3 (AI Available)**. Rationale: the Personal Constitution's entire purpose is to be consulted by the AI — unlike Tier 1's actual stated examples (raw journal entries, passwords, API keys, encryption keys, auth tokens), it is content the user deliberately writes for the AI's use. This is consistent with `ProductConstitution` and `AIConstitution`, both already Tier 3 by the same reasoning. No per-message or onboarding-consent gate is needed for Constitution content specifically.
+
+**Implementation:** `packages/db/prisma/schema.prisma` — all 8 models' `classification` default changed from 1 to 3 (migration `20260726093417_personal_constitution_tier3`, which also backfills any pre-existing rows created under the old default). This does not change Round 1 Decision 4's tier definitions or Round 9's gate logic — only corrects which tier the Personal Constitution's own objects were assigned to.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.
