@@ -5,11 +5,13 @@
 // docs/engineering-roadmap.md §2, Milestone 0).
 //
 // Domain object tables (the Canonical Object Registry from
-// docs/architecture-decisions.md, Round 1 Decision 1) are NOT modeled here
-// yet. They land starting Milestone 1, and only once the Blocking findings
-// B1 (no Constitution domain in the registry) and B2 (Priority/Risk Level
-// value sets undefined) in docs/architecture-compliance-report.md are
-// resolved by explicit decision.
+// docs/architecture-decisions.md, Round 1 Decision 1, extended by Round 7's
+// Constitution domain group, Priority/Risk enums, Journal placement, the
+// reconciled Health list, and LegalDocument) are NOT modeled here yet. They
+// land starting Milestone 1 — the registry gaps that used to block that
+// work (compliance report findings B1-B5) are now resolved; this schema
+// simply hasn't been extended to Milestone 1 scope yet pending explicit
+// approval to begin that milestone.
 //
 // `workspaceId` fields below are plain strings, not foreign keys, because
 // the Workspace object itself is a Milestone 1 deliverable (Core Object

@@ -18,8 +18,14 @@ export interface AuthorizationResult {
  * matrix cannot be fully implemented until:
  *   - the Integration Layer supplies real Trust Levels (Milestone 3)
  *   - objects carry real Data Classification (Milestone 1+)
- *   - Action Risk Level has a defined value set (Blocking finding B2)
  *   - the Automation Engine supplies real Permission Levels (Milestone 3)
+ *
+ * (Action Risk Level's value set — the fourth input this matrix needs —
+ * is now canonical: Round 7, Decision 3 defines MINIMAL/LOW/MODERATE/
+ * HIGH/CRITICAL. That resolves what was Blocking finding B2 in
+ * docs/architecture-compliance-report.md, but the matrix still can't be
+ * completed until the other three inputs above exist in Milestone 3 — see
+ * the note on `actionRiskLevel` in authorization-input.interface.ts.)
  *
  * Until then, this service enforces only the one rule that's fully
  * decidable today, per Security by Default ("every action is unauthorized
@@ -29,12 +35,13 @@ export interface AuthorizationResult {
  *   - A human user acting directly is allowed.
  *   - Every other actor type (ai, automation, integration, system) is
  *     required to go through approval unless ALL relevant inputs are
- *     present — and since Action Risk Level's value set doesn't exist yet,
- *     that condition can never currently be fully satisfied, so those
- *     actors always land on REQUIRE_APPROVAL for now. This is intentional
- *     and will loosen as the missing inputs come online in later
- *     milestones — it must not be "fixed" by relaxing this default before
- *     the real matrix is implemented.
+ *     present — and since Integration Trust Level, Data Classification,
+ *     and Automation Permission Level still don't exist as real, supplied
+ *     values before Milestone 3, that condition can never currently be
+ *     fully satisfied, so those actors always land on REQUIRE_APPROVAL for
+ *     now. This is intentional and will loosen as the missing inputs come
+ *     online in later milestones — it must not be "fixed" by relaxing
+ *     this default before the real matrix is implemented.
  *
  * Every evaluation is recorded, allowed or not, per the audit logging
  * responsibility of the Trust & Authorization Service.

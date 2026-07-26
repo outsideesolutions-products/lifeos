@@ -2,7 +2,7 @@
   "name": "@lifeos/db",
   "version": "0.0.0",
   "private": true,
-  "description": "Prisma schema and generated client — shared database access layer for LifeOS. Milestone 0 scope: Secrets Management and Trust & Authorization tables only. Domain object tables land starting Milestone 1, gated on resolving Blocking findings B1/B2 in docs/architecture-compliance-report.md.",
+  "description": "Prisma schema and generated client — shared database access layer for LifeOS. Milestone 0 scope: Secrets Management and Trust & Authorization tables only. Domain object tables land starting Milestone 1, pending explicit approval to begin that milestone (the registry gaps that used to block it, compliance report findings B1-B5, are now resolved).",
   "main": "index.ts",
   "scripts": {
     "generate": "prisma generate",

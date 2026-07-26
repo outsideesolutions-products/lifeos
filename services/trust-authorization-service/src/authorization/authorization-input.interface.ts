@@ -28,9 +28,15 @@ export interface AuthorizationInputs {
    * the object being acted on is registered (Milestone 1+). */
   dataClassificationTier?: 1 | 2 | 3 | 4;
 
-  /** Action Risk Level — undefined value set; see Blocking finding B2 in
-   * docs/architecture-compliance-report.md. Always unknown until that's
-   * resolved. */
+  /** Action Risk Level — value set is now canonical (Round 7, Decision 3:
+   * MINIMAL/LOW/MODERATE/HIGH/CRITICAL; see architecture-decisions.md).
+   * Still typed as a plain string here rather than that literal union: the
+   * policy that actually uses these values (the full Automation
+   * Authorization Matrix, Round 3 Decision 11) isn't implemented until
+   * Milestone 3, alongside the Automation Engine and Integration Layer
+   * that supply the other three matrix inputs below. Tightening this type
+   * is deferred to that implementation work, not blocked on anything
+   * further. */
   actionRiskLevel?: string;
 
   /** Automation Permission Level (Observe/Recommend/Execute/Autonomous) —
