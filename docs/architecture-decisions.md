@@ -324,6 +324,22 @@ Every health object must appear consistently across the Registry, Domain Model, 
 
 ---
 
+## Round 8 — Object Model Clarification (raised during Milestone 1 implementation)
+
+Amends Round 1, Decision 1. While building the Object Service, it became clear that the Canonical Object Registry's "Core Objects" domain group listed a standalone `Object` entry with no stated meaning, and no other document ever modeled a literal shared `Object` table that concrete types (Task, Goal, etc.) inherit from — every concrete type is its own table carrying the universal base fields directly.
+
+**Decision:** There is no canonical `Object` database table. "Object" was always meant as the architectural abstraction — the shared contract every first-class entity follows — not a persistent entity itself. The Universal Base Object (Round 2, Decision 3) defines the required fields every concrete object must carry; the Knowledge Graph, Search, AI Memory, Automation Engine, and APIs treat all concrete object types uniformly through that shared contract, not through table inheritance.
+
+The Canonical Object Registry's Core Objects domain group is corrected:
+
+- **Core Objects:** User, Workspace, **Universal Base Object (architectural abstraction — not a database table)**, Folder, Tag, Label
+
+**Implementation mechanism (engineering decision, not further architecture):** since Prisma has no model inheritance, the Universal Base Object contract is enforced two ways rather than via a shared table: (1) every concrete Prisma model repeats the universal fields directly as columns, consistent with how the Database Schema document always modeled per-type tables; (2) a shared TypeScript interface (`UniversalBaseObject`, in `@lifeos/domain-model`) declares the contract, and each concrete type's generated Prisma type is asserted against it in tests — so drift between a model and the contract is caught at build/test time rather than relying on manual discipline alone. No architectural revision is needed for this — it is a standard implementation pattern for a documented contract, not a new object-modeling decision.
+
+Do not create an `Object` database table unless a future architectural revision explicitly introduces one for a demonstrated technical need.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.

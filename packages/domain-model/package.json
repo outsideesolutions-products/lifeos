@@ -1,0 +1,16 @@
+{
+  "name": "@lifeos/domain-model",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Canonical Object Registry's shared TypeScript contracts: the Universal Base Object every concrete entity must implement, and canonical enums (Priority, Risk, Data Classification tiers, etc.) referenced across services. This package has no runtime dependencies on Prisma or any specific ORM — it is pure contract, so every service can depend on it without a circular dependency on @lifeos/db.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.0"
+  }
+}
