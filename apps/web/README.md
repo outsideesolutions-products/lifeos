@@ -32,9 +32,11 @@ pnpm --filter @lifeos/web run dev
 
 Open http://localhost:3000.
 
-## Verified
+## Testing
 
-End-to-end via Playwright against the live backend services:
+`e2e/` holds a permanent Playwright suite (`pnpm run test:e2e`) that exercises the real backend services — nothing is mocked, so Identity, Object, AI Memory, and Search Services (plus this app's own dev server) must all be running first, same as "Run locally" above. `playwright.config.ts` points at the pre-installed Chromium in this environment.
 
-- **Onboarding**: sign-up redirects to onboarding; adding a Vision entry and skipping the remaining steps before finishing on Success correctly creates both Personal Constitution sub-entities and calls `onboarding/complete`, transitioning Cold Start phase from `INITIALIZATION` to `LEARNING`; reloading `/` after onboarding routes straight to `/dashboard`; dismissing onboarding immediately (no entries) also routes to `/dashboard`, and signing back in afterward does not show onboarding again.
-- **Dashboard**: the greeting header renders the correct time-of-day + real user name; the Constitution Progress card shows the real Cold Start phase and a correct entry count; the Quick Search card finds a Constitution entry created moments earlier in the same session; the Recent Activity card correctly shows "Nothing yet" before any memory exists and then displays a Working Memory entry created via the API, after a reload; the Chief of Staff chat panel renders the user's own message immediately and shows the documented graceful error when the AI Provider Interface call fails (no `OPENAI_API_KEY` configured in this environment).
+- `e2e/onboarding.spec.ts` — sign-up redirects to onboarding; adding a Vision entry and skipping the remaining steps before finishing on Success correctly creates the Personal Constitution sub-entity and calls `onboarding/complete`, transitioning Cold Start phase from `INITIALIZATION` to `LEARNING`; reloading `/` afterward routes straight to `/dashboard`; dismissing onboarding immediately (no entries) also routes to `/dashboard`, and signing back in afterward does not show onboarding again.
+- `e2e/dashboard.spec.ts` — the greeting header renders the correct time-of-day + real user name; Constitution Progress reflects a real entry created during onboarding; Quick Search finds that same entry; Recent Activity shows "Nothing yet" before any memory exists and then a real Working Memory entry after one is created via the API; the Chief of Staff chat panel renders the user's own message and the documented graceful error when the AI Provider Interface call fails (`OPENAI_API_KEY` not configured in this environment — the assertion would need to change to expect a real response in an environment where it is).
+
+No unit-test suite exists for this app yet (component-level tests with a mocked `fetch`) — the Playwright suite is the only automated coverage so far, since every page here is thin enough that its real value is in the integration with live backends, not isolated component logic.
