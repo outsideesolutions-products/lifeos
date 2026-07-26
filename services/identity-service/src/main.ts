@@ -21,6 +21,17 @@ async function bootstrap() {
     bodyParser: false,
   });
 
+  // Registered before any route (including Better Auth's catch-all below)
+  // so preflight/credentialed requests from the web app succeed. Better
+  // Auth's own `trustedOrigins` config (auth.config.ts) governs its
+  // internal CSRF/redirect checks — a separate concern from the actual
+  // Access-Control-* response headers a browser requires, which is what
+  // this provides.
+  app.enableCors({
+    origin: (process.env.TRUSTED_ORIGINS ?? 'http://localhost:3000').split(','),
+    credentials: true,
+  });
+
   const expressApp = app.getHttpAdapter().getInstance();
 
   // Better Auth owns its own routing convention under /api/auth/* (sign-in,

@@ -5,6 +5,7 @@ import { FoldersModule } from './folders/folders.module';
 import { TagsModule } from './tags/tags.module';
 import { LabelsModule } from './labels/labels.module';
 import { ConstitutionModule } from './constitution/constitution.module';
+import { OnboardingModule } from './onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConstitutionModule } from './constitution/constitution.module';
     TagsModule,
     LabelsModule,
     ConstitutionModule,
+    OnboardingModule,
   ],
 })
 export class AppModule {}

@@ -102,6 +102,23 @@ export class ConstitutionService {
       `Added ${type.slice(0, -1)}`,
     );
 
+    // Cold Start Behavior (Round 4 Decision 5): Phase 1 (Initialization) is
+    // "no Personal Constitution yet"; Phase 2 (Learning) is "Personal
+    // Constitution exists but is incomplete." The first sub-entity ever
+    // created for a workspace is exactly the transition point from "doesn't
+    // exist" to "exists" — advancing past that point here, rather than
+    // leaving every reader to infer it from an empty PersonalConstitution
+    // with no entries, is a direct implementation of the stated phases, not
+    // a new rule. The Learning -> Mature transition is deliberately NOT
+    // implemented anywhere: no document specifies a concrete trigger for
+    // it (unlike this one), so it remains an open product decision.
+    if (personalConstitution.status === 'INITIALIZATION') {
+      await this.prisma.personalConstitution.update({
+        where: { id: personalConstitution.id },
+        data: { status: 'LEARNING' },
+      });
+    }
+
     return created;
   }
 

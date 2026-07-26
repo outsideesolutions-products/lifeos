@@ -11,6 +11,11 @@ async function bootstrap() {
     logger: new JsonLoggerService(SERVICE_NAME),
   });
 
+  app.enableCors({
+    origin: (process.env.TRUSTED_ORIGINS ?? 'http://localhost:3000').split(','),
+    credentials: true,
+  });
+
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true }),
