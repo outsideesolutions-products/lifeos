@@ -1,8 +1,8 @@
 # LifeOS — Engineering Implementation Roadmap
 
 **Document Type:** Engineering Roadmap (Planning Artifact — No Code)
-**Status:** Draft v1.0
-**Authority:** Subordinate to all frozen Version 1 architecture documents per the Source of Truth Hierarchy (Engineering Standards & Governance §4). This document does not introduce new architectural decisions — it sequences and operationalizes decisions already made across the 15 core specifications and 5 batches of architectural decisions.
+**Status:** v1.1 — updated to incorporate the Final Pre-Implementation decisions
+**Authority:** Subordinate to all frozen Version 1 architecture documents per the Source of Truth Hierarchy (Engineering Standards & Governance §4). This document does not introduce new architectural decisions — it sequences and operationalizes decisions already made across the 15 core specifications, 5 batches of architectural decisions, and the Final Pre-Implementation Decisions. See `docs/architecture-decisions.md` for the full consolidated decision record.
 **Purpose:** Translate the frozen V1 architecture into a buildable milestone sequence, dependency graph, repository layout, and set of engineering strategies, so that every subsequent coding session has an unambiguous blueprint to follow.
 
 ---
@@ -12,8 +12,10 @@
 Before sequencing anything, three frozen decisions shape every choice below and are restated here so this document is self-contained:
 
 - **Nothing may touch a data object without going through the Canonical Object Registry / Object Service.** No domain module defines its own object types.
-- **Nothing may execute an AI or automated action without passing through the Trust & Authorization Service**, which itself depends on Identity, Data Classification, Integration Trust, and Automation Permission all being in place.
-- **The architecture is technology-agnostic; the System Architecture document's stack suggestions (Next.js, FastAPI/NestJS, PostgreSQL, pgvector, S3/R2, Auth0/Clerk/Supabase, Temporal/Inngest/BullMQ/Celery, Redis) are guidance, not requirements.** This roadmap assumes that stack as a working default so the plan is concrete, but every choice below is swappable without violating the architecture. Flag to confirm before Milestone 1 begins: **do we lock this stack now, or revisit per-service at build time?**
+- **Nothing may execute an AI or automated action without passing through the Trust & Authorization Service**, which itself depends on Identity, Data Classification, Integration Trust, Regulatory Classification, and Automation Permission all being in place.
+- **The technology stack is now locked** (Final Pre-Implementation Decisions, Decision 4) — no longer guidance. See §4 below for the confirmed stack, which replaces the System Architecture document's non-binding suggestions.
+- **Every AI reasoning pass consults the three-constitution hierarchy** — Product Constitution → AI Constitution → Personal Constitution → Current Context → Historical Memory (Final Pre-Implementation Decisions, Decision 3) — superseding the Cognitive Architecture document's earlier claim that the Personal Constitution alone is "the highest authority within LifeOS." Product and AI Constitution now outrank it.
+- **Objects live under exactly one Area, and Areas live under exactly one Space** (Final Pre-Implementation Decisions, Decision 1) — Workspace → Spaces (Work / Life / Content) → Areas → Objects.
 
 ---
 
@@ -44,7 +46,7 @@ The original Milestone 1 groups Authentication, Core Object Engine, Database, Kn
 - **Knowledge Graph Foundation** — the Object Relationships table with the indexing required by Batch 3 Decision 3 (relationship-type indexing, object-type indexing, temporal filtering, priority-based traversal), plus the FK-vs-graph modeling rule from Batch 5 Decision 8 enforced from day one
 - **AI Memory Foundation** — schema for the 8-tier memory model (Batch 4 Decision 1); only Working, Operational, and Constitution memory need real behavior at this stage, the rest just need to exist structurally
 - **AI Provider Interface** — the abstract, vendor-agnostic interface (Batch 1 Decision 5), OpenAI as the only wired provider initially, with the routing hook (lightweight/reasoning/large-context) present but trivial until more providers exist
-- **Personal Constitution object + Cold Start Phase 1 logic** — the AI must be functional with zero Constitution data (Batch 4 Decision 5)
+- **Three-Constitution model + Cold Start Phase 1 logic** — Product Constitution and AI Constitution are static/seeded at build time (not user-editable); the Personal Constitution object is the only one the user populates, starting empty via onboarding. Reasoning order is Product → AI → Personal → Current Context → Historical Memory (Final Pre-Implementation Decisions, Decision 3). The AI must be functional with zero Personal Constitution data (Batch 4 Decision 5)
 - **First-Run / Onboarding Experience** — the guided context-building flow (Batch 5 Decision 5); this is what actually populates the Constitution and initial context, so it belongs in the same milestone as Cold Start logic, not deferred
 - **Dashboard** — minimum viable version: AI conversational greeting + a small set of static context cards (full Adaptive Home Screen dynamic assembly is deferred to when there's enough object data to rank)
 - **Search** — keyword search only across whatever objects exist at this point; semantic search deferred until the Vector Database has meaningful content
@@ -59,7 +61,7 @@ The original Milestone 1 groups Authentication, Core Object Engine, Database, Kn
 **Scope:**
 - Tasks, Projects, Goals, Milestones, Calendar, Notes, Reviews — all as objects registered in the Canonical Object Registry, using the direct-FK relationship pattern for structural containment (Task→Project, Task→ParentTask, per Batch 5 Decision 8)
 - **Planning Activity View** — the first Domain Activity View (Batch 5 Decision 9), since Planning is the first domain with enough cross-table query pressure to justify one
-- Spaces/Areas navigation structure activated (Work Space at minimum, since Planning objects are the first to need it) — **pending your confirmation on the Batch 5 Areas-granularity question before this is built**
+- Spaces/Areas navigation structure activated for the Work Space (Projects, Goals, Tasks, Calendar, Meetings, Knowledge, Contacts Areas per the Final Pre-Implementation canonical Area structure)
 - Executive Briefing screen (morning briefing) and Daily/Weekly Review screens, using real Planning data for the first time
 - AI Correction Workflow (Accept/Edit/Reject/Explain Why, Batch 5 Decision 4) — introduced here because this is the first milestone where the AI is making enough recommendations (task priority, scheduling) to need it
 
@@ -131,7 +133,7 @@ M1: Foundation
 M2: Core Planning
  ├─ Tasks / Projects / Goals / Milestones / Calendar / Notes / Reviews
  ├─ Planning Activity View
- ├─ Spaces/Areas navigation  ⚠ pending Areas-granularity confirmation
+ ├─ Spaces/Areas navigation (Work Space activated)
  ├─ Executive Briefing / Review screens
  └─ AI Correction Workflow
         │
@@ -170,12 +172,34 @@ M5: Advanced Intelligence & Remaining Integrations
 
 Per Engineering Standards §5: organized by business capability, never by technical layer at the top level.
 
+### Confirmed Technology Stack (Final Pre-Implementation Decisions, Decision 4)
+
+| Concern | Choice |
+|---|---|
+| Frontend | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui |
+| Desktop | Electron |
+| Mobile | React Native + Expo |
+| Backend | NestJS, TypeScript |
+| Database | PostgreSQL |
+| Vector Search | pgvector |
+| Caching | Redis |
+| ORM | Prisma |
+| Authentication | Better Auth (Clerk as fallback if Better Auth blocks implementation) |
+| File Storage | S3-compatible object storage |
+| AI Provider | OpenAI, behind the abstract AI Provider Interface |
+| Workflow Engine | Temporal (preferred; propose a simpler event-driven alternative before replacing it if complexity becomes excessive) |
+| Infrastructure | Docker, GitHub Actions, Vercel (frontend), Railway or Fly.io (early backend), provider-agnostic where practical |
+| Logging | Structured JSON |
+| Monitoring | OpenTelemetry-compatible instrumentation |
+
+This replaces the System Architecture document's non-binding stack suggestions (which had listed FastAPI *or* NestJS, and Auth0/Clerk/Supabase as undecided options) with a single confirmed choice per concern.
+
 ```
 /lifeos
 ├── /apps
 │   ├── /web                    # Next.js — primary experience layer
-│   ├── /mobile                 # React Native (or Flutter) — capture/briefings/reviews/quick actions only
-│   └── /desktop                # Optional Electron shell around /web, if native desktop is needed beyond browser
+│   ├── /mobile                 # React Native + Expo — capture/briefings/reviews/quick actions only
+│   └── /desktop                # Electron shell around /web
 │
 ├── /services                   # Core Services (System Architecture §5 + Batch 3 additions)
 │   ├── /identity-service
@@ -263,8 +287,9 @@ Services communicate through defined interfaces only, never direct database acce
 
 ## 6. Frontend Architecture
 
-- **Web (Next.js)** — full experience: Dashboard, Chat, Calendar, Task Views, Content Studio, Reviews, Notifications, Search, Reports, Widgets. Primary environment for planning, writing, managing, analysis, configuration (Batch 5 Decision 3).
-- **Mobile (React Native or Flutter)** — scoped to capture, briefings, reviews, notifications, quick actions, AI conversation only (Batch 5 Decision 3) — same information architecture as web, not identical functionality.
+- **Web (Next.js + React + TypeScript + Tailwind + shadcn/ui)** — full experience: Dashboard, Chat, Calendar, Task Views, Content Studio, Reviews, Notifications, Search, Reports, Widgets. Primary environment for planning, writing, managing, analysis, configuration (Batch 5 Decision 3).
+- **Mobile (React Native + Expo)** — scoped to capture, briefings, reviews, notifications, quick actions, AI conversation only (Batch 5 Decision 3) — same information architecture as web, not identical functionality.
+- **Desktop (Electron)** — a native shell around the web app for users who want an installed desktop presence beyond the browser.
 - **Shared component library** (`/packages/ui-components`) — Buttons, Cards, Lists, Object headers, Timelines, Tables, Forms, AI recommendation cards, Chat bubbles, Search results, Notification banners, Modals, Drawers, Side panels (UI/UX §30), used by both web and mobile where the platform allows.
 - **Core interaction surfaces**, built in this order of introduction: conversational Chief of Staff → Home Screen (adaptive) → Object-Centered pages (with AI Context Panel) → Universal Search → AI Command Palette (⌘K) → Focus Mode.
 - **Conversation-first, navigation-secondary**, but the PRD's structural navigation constraints (≤2 sidebar levels, ≤3 clicks to any screen) remain binding on the traditional navigation mode per Batch 2 Decision 7.
@@ -273,6 +298,7 @@ Services communicate through defined interfaces only, never direct database acce
 
 ## 7. Database Migrations
 
+- **Prisma** is the confirmed ORM and migration tool (`prisma migrate`) against PostgreSQL.
 - Every schema change requires: a migration script, a rollback script, tests, and updated documentation (Engineering Standards §9; Database Standards Specification, once written, governs the specifics — index strategy, enums, cardinality, cascade, soft-delete, naming, migration format).
 - **No schema change may occur independently of the Canonical Object Registry** (Batch 5 Decision 11) — a migration that adds a new object type must land alongside the corresponding registry update, API surface, Knowledge Graph wiring, AI Memory consideration, Search indexing, and UI surface in the same change set.
 - Soft-delete is the default (`deleted_at`); permanent deletion is a distinct, explicit administrative operation, never a side effect of a normal delete flow (Batch 5 Decision 7).
@@ -294,7 +320,7 @@ Services communicate through defined interfaces only, never direct database acce
 
 ## 9. Authentication Strategy
 
-Per Batch 1 Decision 3, built multi-user-capable even though V1 exposes a single personal workspace:
+Implemented on **Better Auth** (Clerk as fallback if Better Auth creates implementation blockers — this is an allowed substitution per Final Pre-Implementation Decisions, Decision 4, not a deviation requiring the Architectural Change Process). Per Batch 1 Decision 3, built multi-user-capable even though V1 exposes a single personal workspace:
 - Email/password, passkeys where supported, Google OAuth, optional Apple Sign In
 - MFA, biometric unlock on supported devices
 - Secure session management, device management, session revocation, trusted devices
@@ -379,13 +405,23 @@ Base checklist for every milestone (derived from Engineering Standards §20 Defi
 
 ---
 
-## 15. Open Items Before Milestone 0 Can Start
+## 15. Resolved Items (formerly blocking, now closed)
 
-Carried forward from prior review rounds, restated here because they block concrete implementation:
+All four items previously listed here were resolved by the Final Pre-Implementation Decisions and are no longer open:
 
-1. **Areas granularity** — is "Projects" a valid Area name (per the Batch 5 example), or do the original 12 Domain Model Areas remain unchanged? Affects M2's Spaces/Areas navigation build.
-2. **Regulatory Classification vs. Sensitivity Level** — are these two independent fields on a Connector record, or does one supersede the other? Affects M3's Integration Layer schema and M5's regulated-integration work.
-3. **Product Constitution / AI Constitution** — are these existing artifacts (e.g., is "AI Constitution" the Cognitive Architecture's Executive Operating Principles renamed) or new documents to be authored before M1's Cold Start logic can be implemented?
-4. **Technology stack confirmation** — this roadmap assumes the System Architecture's suggested stack as a working default (§1 above). Confirm before M0 begins, or note that stack selection happens per-service at build time.
+1. **Areas granularity** — resolved. Canonical structure: Work (Projects, Goals, Tasks, Calendar, Meetings, Knowledge, Contacts), Life (Health, Finance, Relationships, Learning, Travel, Home, Personal), Content (Ideas, Content Library, Campaigns, Brand Partnerships, Audience, Analytics).
+2. **Regulatory Classification vs. Sensitivity Level** — resolved as two independent fields, both evaluated by the Trust & Authorization Service. Sensitivity Level (Critical/High/Medium/Low) answers "how damaging is disclosure"; Regulatory Classification (None/Standard/Financial/Health/Government/Identity/Legal) answers "what external obligations apply."
+3. **Product/AI/Personal Constitution** — resolved as three distinct, permanently-ranked constitutions: Product (permanent, product philosophy), AI (permanent, AI behavioral rules), Personal (evolving, user-owned). Consultation order: Product → AI → Personal → Current Context → Historical Memory.
+4. **Technology stack** — resolved and locked; see §4.
 
-No implementation should begin on the affected pieces until these are resolved, per the governance rule to stop and ask rather than assume.
+## 16. New Items Surfaced by the Architecture Compliance Report
+
+See `docs/architecture-compliance-report.md` for full detail and severity ratings. None of the following block Milestone 0; all must be resolved before the milestone that first touches them, as noted:
+
+1. **Canonical Object Registry has no Constitution domain group.** The Product/AI/Personal Constitutions and their normalized sub-entities (Vision Statement, Identity Statement, Value, Non-Negotiable, Decision Principle, Boundary, Success Definition) aren't registered as objects anywhere. **Must be resolved before Milestone 1** (which builds the Personal Constitution object).
+2. **Priority Levels and Risk Levels have no defined value sets.** Both are named as taxonomies the Canonical AI Taxonomy Registry must own (Batch 4 Decision 1), but neither was ever given concrete values across any batch — and Priority is a universal object field (Batch 2 Decision 3) used from Milestone 1 onward. **Must be resolved before Milestone 1.**
+3. **Journal has no Area placement in the new canonical Area structure**, and defaults (via the Canonical Object Registry's "Knowledge" domain grouping) to the Work Space's Knowledge Area — contradicting the UI/UX document's original design, which placed Journal under the Life Space. **Must be resolved before Milestone 4** (where Journal is built).
+4. **Health domain registry entries don't fully reconcile with the Database Schema's original 9 health sub-tables** (Weight, Mood, Measurements, Cycle, Appointments aren't explicitly named in the Canonical Object Registry's Health group). **Must be resolved before Milestone 4.**
+5. **Legal Document (from the Integration Specification's Contract → Legal Document mapping) isn't in the Canonical Object Registry.** **Must be resolved before whichever milestone first handles contracts** (likely M3/M4, brand partnerships and integrations).
+
+None of these block Milestone 0, which touches only Secrets Management and the Trust & Authorization Service skeleton — no domain objects, Areas, or Constitutions are created in that milestone.
