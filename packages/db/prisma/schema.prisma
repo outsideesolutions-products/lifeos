@@ -736,3 +736,63 @@ model ObjectRelationship {
   @@index([createdAt])
   @@map("object_relationship")
 }
+
+// --- AI Memory -----------------------------------------------------------
+// The 8-tier hierarchical memory model (architecture-decisions.md Round 2
+// Decision 1). Pattern Memory is explicitly NOT a 9th tier here — it is an
+// analytical capability built on top of Behavioral, Semantic, and
+// Long-Term Memory (an application-layer computation over these rows, not
+// its own storage).
+//
+// Milestone 1 scope: only Working, Operational, and Constitution memory
+// have real read/write behavior exercised by the Chief of Staff baseline.
+// The other five tiers are structurally present (this one table serves
+// all eight, discriminated by `memoryType`) but populated meaningfully
+// starting in later milestones as Automation, Integrations, and richer
+// reasoning come online.
+
+enum MemoryType {
+  WORKING
+  OPERATIONAL
+  LONG_TERM
+  SEMANTIC
+  BEHAVIORAL
+  DECISION
+  CONVERSATION
+  CONSTITUTION
+}
+
+model MemoryEntry {
+  id          String     @id @default(uuid())
+  workspaceId String
+  memoryType  MemoryType
+  content     String
+
+  // Evidence-based confidence (Round 4 Decision 2) — nullable because not
+  // every memory tier's writer has a confidence methodology yet in
+  // Milestone 1; still a required concept for the tiers that do.
+  confidence Float?
+  source     String?
+
+  // Denormalized (type, id) references, not Knowledge Graph edges — every
+  // memory touching the graph as a first-class node is a heavier-weight
+  // design left for when memory volume/query patterns in later milestones
+  // actually need graph traversal over memories specifically, rather than
+  // assumed now.
+  relatedObjects   Json     @default("[]")
+  importance       Int      @default(0)
+  createdAt        DateTime @default(now())
+  lastReferencedAt DateTime @default(now())
+
+  // Working Memory is "cleared automatically" (Cognitive Architecture) —
+  // this is how: entries carry an expiry and are filtered out once past
+  // it, rather than requiring an active background purge process in
+  // Milestone 1.
+  expiresAt DateTime?
+  createdBy String
+
+  @@index([workspaceId, memoryType])
+  @@index([expiresAt])
+  @@index([importance])
+  @@map("memory_entry")
+}

@@ -5,7 +5,7 @@ export { PrismaClient, Prisma } from '@prisma/client';
 // things like `Object.values(RelationshipType)` for validation. Everything
 // else below is a plain model type with no runtime representation of its
 // own.
-export { Priority, RelationshipType } from '@prisma/client';
+export { Priority, RelationshipType, MemoryType } from '@prisma/client';
 
 export type {
   // Milestone 0
@@ -40,6 +40,8 @@ export type {
   PersonalConstitutionVersion,
   // Knowledge Graph
   ObjectRelationship,
+  // AI Memory
+  MemoryEntry,
 } from '@prisma/client';
 
 // Risk Level is NOT a Prisma enum — see the comment above `enum Priority`
