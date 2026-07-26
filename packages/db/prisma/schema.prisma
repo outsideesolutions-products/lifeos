@@ -688,3 +688,51 @@ model PersonalConstitutionVersion {
   @@index([personalConstitutionId])
   @@map("personal_constitution_version")
 }
+
+// --- Knowledge Graph ---------------------------------------------------
+// The Object Relationships store (architecture-decisions.md Round 3
+// Decision 3, Round 5 Decision 8's FK-vs-graph rule). Direct foreign keys
+// (e.g. Folder.parentFolderId above) are for stable, frequently-queried
+// structural ownership; this table is for everything else — semantic,
+// typed, polymorphic connections between any two objects in the registry.
+//
+// `sourceObjectType` / `targetObjectType` are plain strings, not an enum,
+// because they must accept every current and future Canonical Object
+// Registry type name without a schema migration each time one is added —
+// unlike RelationshipType below, which is a closed, stable taxonomy
+// (Domain Model, "Universal Relationship Rules").
+
+enum RelationshipType {
+  BELONGS_TO
+  CONTAINS
+  SUPPORTS
+  CREATED_FROM
+  REFERENCES
+  DEPENDS_ON
+  BLOCKS
+  GENERATED
+  ASSIGNED_TO
+  REVIEWED_IN
+  ARCHIVED_WITH
+}
+
+model ObjectRelationship {
+  id               String           @id @default(uuid())
+  workspaceId      String
+  sourceObjectType String
+  sourceObjectId   String
+  relationshipType RelationshipType
+  targetObjectType String
+  targetObjectId   String
+  strength         Float?
+  createdAt        DateTime         @default(now())
+  createdBy        String
+
+  @@unique([sourceObjectType, sourceObjectId, relationshipType, targetObjectType, targetObjectId])
+  @@index([workspaceId])
+  @@index([sourceObjectType, sourceObjectId])
+  @@index([targetObjectType, targetObjectId])
+  @@index([relationshipType])
+  @@index([createdAt])
+  @@map("object_relationship")
+}

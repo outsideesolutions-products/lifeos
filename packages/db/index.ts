@@ -1,4 +1,12 @@
 export { PrismaClient, Prisma } from '@prisma/client';
+
+// Prisma-generated enums are real runtime objects (not just types) — they
+// must be exported as values, not via `export type`, so callers can do
+// things like `Object.values(RelationshipType)` for validation. Everything
+// else below is a plain model type with no runtime representation of its
+// own.
+export { Priority, RelationshipType } from '@prisma/client';
+
 export type {
   // Milestone 0
   Secret,
@@ -13,11 +21,6 @@ export type {
   Verification,
   TwoFactor,
   Passkey,
-  // Canonical enums
-  // Priority is a real Prisma enum (used as a column type below). Risk
-  // Level is NOT — see the comment above `enum Priority` in schema.prisma.
-  // Its canonical TypeScript definition lives in @lifeos/domain-model.
-  Priority,
   // Core Objects
   Workspace,
   Folder,
@@ -35,4 +38,10 @@ export type {
   PersonalConstitutionBoundary,
   PersonalConstitutionSuccessDefinition,
   PersonalConstitutionVersion,
+  // Knowledge Graph
+  ObjectRelationship,
 } from '@prisma/client';
+
+// Risk Level is NOT a Prisma enum — see the comment above `enum Priority`
+// in schema.prisma. Its canonical TypeScript definition lives in
+// @lifeos/domain-model, not here.

@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "description": "Prisma schema and generated client — shared database access layer for LifeOS. Milestone 0 tables (Secrets Management, Trust & Authorization) plus Milestone 1's Identity/Core Object/Constitution foundation. See schema.prisma's file header for details.",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
+    "build": "tsc",
     "generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",

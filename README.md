@@ -14,7 +14,7 @@ The Source of Truth Hierarchy (see `architecture-decisions.md`, Round 6, Decisio
 
 ## Status
 
-**Milestone 0 — Platform Bedrock** (in progress). See `docs/engineering-roadmap.md` §2 for scope and Definition of Done.
+**Milestone 1 — Foundation** (in progress). Milestone 0 (Secrets Management, Trust & Authorization) is complete. See `docs/engineering-roadmap.md` §2 for scope and Definition of Done.
 
 ## Technology Stack
 
@@ -26,7 +26,12 @@ Locked per `architecture-decisions.md` Round 6, Decision 4: Next.js/React/TypeSc
 cp .env.example .env   # fill in real values
 docker compose up -d   # Postgres + Redis
 pnpm install
+pnpm build              # builds @lifeos/domain-model and @lifeos/db first — services import their compiled dist/, not raw TypeScript, so this must run (or re-run) whenever either package changes
 pnpm db:generate
+pnpm --filter @lifeos/db run migrate:dev
+pnpm --filter @lifeos/db run seed   # seeds the Product and AI Constitution singletons
 ```
+
+`pnpm -r` commands (including the root `build` script) respect the workspace dependency graph automatically, so `pnpm build` always builds `@lifeos/domain-model` and `@lifeos/db` before any service that depends on them — no manual ordering needed.
 
 Per-service run instructions live in each service's own README under `services/`.
