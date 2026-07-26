@@ -1,7 +1,7 @@
 # LifeOS — Engineering Implementation Roadmap
 
 **Document Type:** Engineering Roadmap (Planning Artifact — No Code)
-**Status:** v1.1 — updated to incorporate the Final Pre-Implementation decisions
+**Status:** v1.2 — updated to incorporate the Post-Milestone-0 Cleanup decisions (Round 7)
 **Authority:** Subordinate to all frozen Version 1 architecture documents per the Source of Truth Hierarchy (Engineering Standards & Governance §4). This document does not introduce new architectural decisions — it sequences and operationalizes decisions already made across the 15 core specifications, 5 batches of architectural decisions, and the Final Pre-Implementation Decisions. See `docs/architecture-decisions.md` for the full consolidated decision record.
 **Purpose:** Translate the frozen V1 architecture into a buildable milestone sequence, dependency graph, repository layout, and set of engineering strategies, so that every subsequent coding session has an unambiguous blueprint to follow.
 
@@ -414,14 +414,21 @@ All four items previously listed here were resolved by the Final Pre-Implementat
 3. **Product/AI/Personal Constitution** — resolved as three distinct, permanently-ranked constitutions: Product (permanent, product philosophy), AI (permanent, AI behavioral rules), Personal (evolving, user-owned). Consultation order: Product → AI → Personal → Current Context → Historical Memory.
 4. **Technology stack** — resolved and locked; see §4.
 
-## 16. New Items Surfaced by the Architecture Compliance Report
+## 16. Items Resolved by Post-Milestone-0 Cleanup (formerly blocking Milestone 1/4)
 
-See `docs/architecture-compliance-report.md` for full detail and severity ratings. None of the following block Milestone 0; all must be resolved before the milestone that first touches them, as noted:
+All five items previously listed here are now resolved by `architecture-decisions.md` Round 7 — see `docs/architecture-compliance-report.md` v2 for full detail:
 
-1. **Canonical Object Registry has no Constitution domain group.** The Product/AI/Personal Constitutions and their normalized sub-entities (Vision Statement, Identity Statement, Value, Non-Negotiable, Decision Principle, Boundary, Success Definition) aren't registered as objects anywhere. **Must be resolved before Milestone 1** (which builds the Personal Constitution object).
-2. **Priority Levels and Risk Levels have no defined value sets.** Both are named as taxonomies the Canonical AI Taxonomy Registry must own (Batch 4 Decision 1), but neither was ever given concrete values across any batch — and Priority is a universal object field (Batch 2 Decision 3) used from Milestone 1 onward. **Must be resolved before Milestone 1.**
-3. **Journal has no Area placement in the new canonical Area structure**, and defaults (via the Canonical Object Registry's "Knowledge" domain grouping) to the Work Space's Knowledge Area — contradicting the UI/UX document's original design, which placed Journal under the Life Space. **Must be resolved before Milestone 4** (where Journal is built).
-4. **Health domain registry entries don't fully reconcile with the Database Schema's original 9 health sub-tables** (Weight, Mood, Measurements, Cycle, Appointments aren't explicitly named in the Canonical Object Registry's Health group). **Must be resolved before Milestone 4.**
-5. **Legal Document (from the Integration Specification's Contract → Legal Document mapping) isn't in the Canonical Object Registry.** **Must be resolved before whichever milestone first handles contracts** (likely M3/M4, brand partnerships and integrations).
+1. **Canonical Object Registry Constitution domain group** — resolved. A new `Constitution` Area (Life Space) holds `ProductConstitution`, `AIConstitution`, `PersonalConstitution`, plus the 8 `PersonalConstitution*` sub-entities.
+2. **Priority and Risk value sets** — resolved. `Priority`: LOW/MEDIUM/HIGH/CRITICAL. `Risk`: MINIMAL/LOW/MODERATE/HIGH/CRITICAL.
+3. **Journal Area placement** — resolved. Canonical home: `Life → Personal`, freely cross-linked via the Knowledge Graph.
+4. **Health domain reconciliation** — resolved. Canonical list: `Habit, HabitLog, Workout, SleepRecord, Meal, Medication, HealthMetric, HealthGoal, HealthCheckIn`. One residual mapping question (HealthMetric/HealthCheckIn/Appointments) is open as a non-blocking Recommended finding (R5) for resolution before Milestone 4.
+5. **Legal Document object** — resolved. Added to the registry at `Life → Personal`.
 
-None of these block Milestone 0, which touches only Secrets Management and the Trust & Authorization Service skeleton — no domain objects, Areas, or Constitutions are created in that milestone.
+**Milestone 1 is now implementation-ready per the compliance report**, pending your explicit approval to begin.
+
+## 17. Milestone Scope Updates from Round 7
+
+- **Milestone 1** ("Three-Constitution model + Cold Start Phase 1 logic") now explicitly includes registering `ProductConstitution`, `AIConstitution`, and `PersonalConstitution` as real objects in the Constitution Area under the Life Space, with Product/AI Constitution seeded as effectively-immutable data at build time and Personal Constitution starting empty.
+- **Milestone 4**'s Health scope is now the canonical 9-object list (`Habit, HabitLog, Workout, SleepRecord, Meal, Medication, HealthMetric, HealthGoal, HealthCheckIn`) rather than the Database Schema's original 9 sub-tables — pending R5's resolution on the Appointments/discriminator mapping.
+- **Milestone 4**'s Content Studio / Brand Partnership scope, and **Milestone 3**'s contract-detecting automations, now have a real `LegalDocument` object to attach to rather than an unregistered concept.
+- A small, zero-risk item carried forward: two code comments in the Milestone 0 scaffold (`services/trust-authorization-service/src/authorization/authorization-input.interface.ts` and `authorization.service.ts`) still reference "Blocking finding B2" as open. These are now stale (not wrong) and will be updated to reference the new Priority/Risk enums at the start of Milestone 1, or sooner if you'd like that treated as documentation-only housekeeping rather than implementation.

@@ -259,6 +259,71 @@ Supersedes both the original 13-document list from Round 2 and the reordered 15-
 
 ---
 
+## Round 7 — Post-Milestone-0 Cleanup
+
+Resolves all five Blocking findings (B1–B5) raised in the Milestone-0-era `architecture-compliance-report.md`.
+
+**1. Constitution Domain — final and authoritative.**
+
+Constitutions are canonical, first-class objects — not configuration files. A new Area is added to the Life Space (updates the Round 6 table, which had 7 Life Areas; it now has 8):
+
+| Space | Areas |
+|---|---|
+| **Life** | Health, Finance, Relationships, Learning, Travel, Home, Personal, **Constitution** |
+
+The **Constitution** Area contains three object types, all inheriting the Universal Base Object: `ProductConstitution`, `AIConstitution`, `PersonalConstitution`. Product Constitution and AI Constitution are effectively immutable except through explicit architectural revision (Engineering Standards §25's Architectural Change Process); Personal Constitution is versioned and evolves only through explicit user approval (consistent with Round 4, Decision 5 and Round 4, Decision 9).
+
+Constitutions must exist consistently across the Canonical Object Registry, Domain Model, Database Schema, Knowledge Graph, Search, AI Memory, APIs, and UI — not merely as an AI-internal concept. The Canonical Object Registry (Round 1, Decision 1) gains a new domain group:
+
+- **Constitution:** ProductConstitution, AIConstitution, PersonalConstitution, PersonalConstitutionVisionStatement, PersonalConstitutionIdentityStatement, PersonalConstitutionValue, PersonalConstitutionNonNegotiable, PersonalConstitutionDecisionPrinciple, PersonalConstitutionBoundary, PersonalConstitutionSuccessDefinition, PersonalConstitutionVersion
+
+(The eight `PersonalConstitution*` sub-entities are the Database Schema's original Module 23 normalized tables, now formally registered as objects rather than existing only as unregistered schema.)
+
+**2. Priority Enum — final and authoritative.**
+
+Resolves the value set that Round 4, Decision 1 named but never defined, and that the universal `Priority` object field (Round 2, Decision 3) has needed since Milestone 1's Object Service was scaffolded:
+
+| Value | Definition |
+|---|---|
+| `LOW` | Nice to do; minimal consequence if delayed |
+| `MEDIUM` | Important but not urgent |
+| `HIGH` | Important and time-sensitive |
+| `CRITICAL` | Immediate attention required; significant consequences if delayed |
+
+Single source of truth for Priority across every system.
+
+**3. Risk Enum — final and authoritative.**
+
+Resolves the other half of the same gap:
+
+| Value | Definition |
+|---|---|
+| `MINIMAL` | No meaningful downside |
+| `LOW` | Small negative impact possible |
+| `MODERATE` | Meaningful downside exists; review recommended |
+| `HIGH` | Large downside possible; approval normally required |
+| `CRITICAL` | Severe consequences possible; explicit approval always required |
+
+Canonical Risk taxonomy for the entire platform, including the Trust & Authorization Service's `actionRiskLevel` input and the Automation Authorization Matrix (Round 3, Decision 11).
+
+**4. Journal Area Placement — final and authoritative.**
+
+Journal's canonical home is `Life → Personal`. It remains freely linkable to any object through the Knowledge Graph (Health, Goals, Relationships, Life Events, Projects, etc.) — the canonical home determines where it lives structurally; its relationships may span the entire system. This is the concrete resolution the "everything has one home" principle (Domain Model, Principle One) requires: one home, unlimited connections.
+
+**5. Health Domain Reconciliation — final and authoritative.**
+
+The Canonical Object Registry's Health domain group (under `Life → Health`) is replaced with this canonical list, superseding both the original Round 1 registry entries and the Database Schema's original 9-table module:
+
+`Habit, HabitLog, Workout, SleepRecord, Meal, Medication, HealthMetric, HealthGoal, HealthCheckIn`
+
+Every health object must appear consistently across the Registry, Domain Model, Database Schema, APIs, Search, Knowledge Graph, AI Memory, UI, Automation Engine, and Life Event Engine — exactly one canonical definition per object, no per-document variation.
+
+**6. Legal Document Object — final and authoritative.**
+
+`LegalDocument` is added to the Canonical Object Registry, placed at `Life → Personal` alongside Journal. Covers Contracts, Agreements, NDAs, Licenses, Legal Records, Government Documents. Must appear consistently across the Registry, Domain Model, Database Schema, APIs, Search, Knowledge Graph, AI Memory, Integrations, and UI — this is the formal object the Integration Specification's `Contract → Legal Document` mapping (§5 there) always assumed but never had a registered home for.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.
