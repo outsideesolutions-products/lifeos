@@ -1,0 +1,37 @@
+{
+  "name": "@lifeos/ai-orchestrator",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The AI Chief of Staff orchestrator (Milestone 1 baseline): Core Identity Prompt, single-agent conversational loop following the Understand -> Gather Context -> Reason -> Recommend -> Act -> Learn framework (AI Prompt Library Section 28). No specialist agents yet (Milestone 1 has no domain data for them to reason over, per the Engineering Roadmap) -- this is the single conversational entry point. Owns no database of its own: it reads Constitution data from the Object Service and memory from the AI Memory Service over HTTP, forwarding the caller's own session credentials rather than holding independent AI credentials, and reasons via the AI Provider Interface (ai/providers).",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@lifeos/ai-providers": "workspace:*",
+    "@lifeos/db": "workspace:*",
+    "@lifeos/domain-model": "workspace:*",
+    "@nestjs/common": "^10.4.0",
+    "@nestjs/core": "^10.4.0",
+    "@nestjs/platform-express": "^10.4.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.4.0",
+    "@nestjs/schematics": "^10.2.0",
+    "@nestjs/testing": "^10.4.0",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.7.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.0"
+  }
+}
