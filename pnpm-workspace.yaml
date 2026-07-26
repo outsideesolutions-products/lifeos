@@ -5,3 +5,7 @@ packages:
   - "ai/*"
   - "integrations/*"
   - "apps/*"
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
