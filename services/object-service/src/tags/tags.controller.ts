@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
@@ -25,8 +26,11 @@ export class TagsController {
   }
 
   @Get()
-  findAll(@CurrentActor() actor: AuthenticatedActor) {
-    return this.tagsService.findAll(actor);
+  findAll(
+    @CurrentActor() actor: AuthenticatedActor,
+    @Query('q') query?: string,
+  ) {
+    return this.tagsService.findAll(actor, query);
   }
 
   @Get(':id')

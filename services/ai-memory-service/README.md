@@ -6,6 +6,7 @@ The foundation of the 8-tier hierarchical AI memory model from the AI Cognitive 
 
 - `POST /memories` — create a memory entry (`memoryType`, `content`, optional `confidence` 0–1, `source`, `relatedObjects`, `importance`, `expiresAt`). `memoryType` is validated against the 8-value `MemoryType` enum.
 - `GET /memories?type=X` — all non-expired entries of a tier, ordered by `importance` desc then `lastReferencedAt` desc (the "frequency of interaction" / "recency" ranking factors from the Context Retrieval decision).
+- `GET /memories/search?q=<query>` — case-insensitive substring match on `content` across every tier (non-expired only). Added specifically so the Search Service can compose results through this API instead of querying the `memoryEntry` table directly (Engineering Roadmap: "internal services never share a database directly — only through service interfaces").
 - `POST /memories/:id/touch` — updates `lastReferencedAt`; callers (the Chief of Staff) invoke this whenever a memory is actually drawn on while assembling context.
 - `DELETE /memories/:id`
 

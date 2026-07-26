@@ -47,6 +47,22 @@ export class MemoriesService {
     });
   }
 
+  /** Content keyword search across every memory type, for the Search
+   * Service (Engineering Roadmap: "internal services never share a
+   * database directly — only through service interfaces") — Search
+   * Service calls this endpoint rather than querying `memoryEntry`
+   * itself. Excludes expired entries, same as findByType. */
+  async search(query: string, actor: AuthenticatedActor) {
+    return this.prisma.memoryEntry.findMany({
+      where: {
+        workspaceId: actor.workspaceId,
+        content: { contains: query, mode: 'insensitive' },
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      orderBy: [{ importance: 'desc' }, { lastReferencedAt: 'desc' }],
+    });
+  }
+
   /** Marks a memory as just-used, per the Context Retrieval ranking
    * factor "frequency of interaction" / "recency" (Round 3 Decision 4) —
    * the Chief of Staff calls this whenever it actually draws on a memory

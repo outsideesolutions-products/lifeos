@@ -38,9 +38,17 @@ export class TagsService {
     }
   }
 
-  findAll(actor: AuthenticatedActor) {
+  /** `query` powers the Search Service's cross-object keyword search — see
+   * the identical note on FoldersService.findAll. */
+  findAll(actor: AuthenticatedActor, query?: string) {
     return this.prisma.tag.findMany({
-      where: { workspaceId: actor.workspaceId, deletedAt: null },
+      where: {
+        workspaceId: actor.workspaceId,
+        deletedAt: null,
+        ...(query
+          ? { name: { contains: query, mode: 'insensitive' as const } }
+          : {}),
+      },
       orderBy: { name: 'asc' },
     });
   }

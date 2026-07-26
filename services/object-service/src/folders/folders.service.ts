@@ -24,9 +24,19 @@ export class FoldersService {
     });
   }
 
-  async findAll(actor: AuthenticatedActor) {
+  /** `query` powers the Search Service's cross-object keyword search — per
+   * the Engineering Roadmap ("internal services never share a database
+   * directly — only through service interfaces"), Search Service calls
+   * this endpoint rather than querying the `folder` table itself. */
+  async findAll(actor: AuthenticatedActor, query?: string) {
     return this.prisma.folder.findMany({
-      where: { workspaceId: actor.workspaceId, deletedAt: null },
+      where: {
+        workspaceId: actor.workspaceId,
+        deletedAt: null,
+        ...(query
+          ? { name: { contains: query, mode: 'insensitive' as const } }
+          : {}),
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

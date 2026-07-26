@@ -366,6 +366,16 @@ This was presented to the user as a genuine architectural contradiction (not res
 
 ---
 
+## Round 11 — Search Service Corrected to Use Service Interfaces, Not Direct Database Access (implementation defect, self-corrected)
+
+While building the Search Service, it was initially implemented with its own Prisma connection querying the `folder`, `tag`, `label`, Personal Constitution sub-entity, and `memoryEntry` tables directly — reasoning (incorrectly) that since every Milestone 1 service already shares one physical Postgres database behind `@lifeos/db`, direct cross-table access was consistent with existing practice. It is not: `engineering-roadmap.md` §8 (API Strategy) states plainly, "internal services never share a database directly — only through service interfaces." No other Milestone 1 service reads a table it doesn't own; Search Service was the first and only violation, introduced and caught within the same implementation session, before being presented as complete.
+
+**Correction:** Search Service now composes every result from the Object Service's and AI Memory Service's own HTTP APIs, forwarding the caller's session credentials (the same pattern already used by the AI orchestrator's client services), and holds no Prisma dependency at all. This required two small, non-breaking additions to the owning services: an optional `?q=` keyword filter on Object Service's `GET /folders`, `GET /tags`, `GET /labels`, and a new `GET /memories/search?q=` endpoint on AI Memory Service. Personal Constitution search still fetches the existing `GET /constitution/personal` response wholesale and filters in-process within Search Service, since that collection is inherently small per user — no new endpoint was needed there.
+
+No user decision was required here: this was an unambiguous violation of an already-stated rule with a clear, mechanical fix, not a case of competing valid interpretations. Recorded per the same self-correction precedent as catching the null-byte bug in the Knowledge Graph Service's traversal endpoint during Milestone 1 — flagged so it's visible in the decision record, not silently fixed and forgotten.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.

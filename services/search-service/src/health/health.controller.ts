@@ -1,24 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
-import {
-  HealthCheck,
-  HealthCheckService,
-  PrismaHealthIndicator,
-} from '@nestjs/terminus';
-import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Search Service owns no database of its own (see session.guard.ts) —
+ * this is a plain liveness check, same as the AI orchestrator's.
+ */
 @Controller('health')
 export class HealthController {
-  constructor(
-    private readonly health: HealthCheckService,
-    private readonly prismaIndicator: PrismaHealthIndicator,
-    private readonly prisma: PrismaService,
-  ) {}
-
   @Get()
-  @HealthCheck()
   check() {
-    return this.health.check([
-      () => this.prismaIndicator.pingCheck('database', this.prisma),
-    ]);
+    return { status: 'ok' };
   }
 }

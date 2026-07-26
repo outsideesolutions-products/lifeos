@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { LabelsService } from './labels.service';
@@ -28,8 +29,11 @@ export class LabelsController {
   }
 
   @Get()
-  findAll(@CurrentActor() actor: AuthenticatedActor) {
-    return this.labelsService.findAll(actor);
+  findAll(
+    @CurrentActor() actor: AuthenticatedActor,
+    @Query('q') query?: string,
+  ) {
+    return this.labelsService.findAll(actor, query);
   }
 
   @Get(':id')

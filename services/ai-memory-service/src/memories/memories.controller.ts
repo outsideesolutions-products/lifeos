@@ -43,6 +43,17 @@ export class MemoriesController {
     return this.memoriesService.findByType(type as MemoryType, actor);
   }
 
+  @Get('search')
+  search(
+    @Query('q') query: string | undefined,
+    @CurrentActor() actor: AuthenticatedActor,
+  ) {
+    if (!query || query.trim().length === 0) {
+      throw new BadRequestException('Query parameter "q" is required');
+    }
+    return this.memoriesService.search(query.trim(), actor);
+  }
+
   @Post(':id/touch')
   touch(@Param('id') id: string, @CurrentActor() actor: AuthenticatedActor) {
     return this.memoriesService.touch(id, actor);

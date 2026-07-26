@@ -4,7 +4,7 @@ CRUD for the Core Objects and Constitution domain groups (Canonical Object Regis
 
 ## Scope (Milestone 1)
 
-- **Folders, Tags, Labels** — full CRUD, workspace-scoped, soft-delete (Round 5 Decision 7), unique tag/label names per workspace.
+- **Folders, Tags, Labels** — full CRUD, workspace-scoped, soft-delete (Round 5 Decision 7), unique tag/label names per workspace. `GET /folders`, `GET /tags`, `GET /labels` accept an optional `?q=` keyword filter (case-insensitive substring on `name`) — added specifically so the Search Service can compose results through this API instead of querying the `folder`/`tag`/`label` tables directly (Engineering Roadmap: "internal services never share a database directly — only through service interfaces").
 - **Constitution** — read-only `GET /constitution/product` and `GET /constitution/ai` (system singletons, seeded via `packages/db/prisma/seed.ts`, never written through this API); full CRUD for the 8 `PersonalConstitution` sub-entities via one generic, type-dispatched endpoint (`/constitution/personal/:type`, where `:type` is one of `vision-statements`, `identity-statements`, `values`, `non-negotiables`, `decision-principles`, `boundaries`, `success-definitions`).
 - **Versioning** — every Personal Constitution mutation writes a new `PersonalConstitutionVersion` snapshot (Cognitive Architecture: "never overwrite history"), never overwrites in place.
 
