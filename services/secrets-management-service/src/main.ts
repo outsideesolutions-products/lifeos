@@ -16,7 +16,10 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, transform: true }),
   );
 
-  const port = process.env.SECRETS_SERVICE_PORT ?? 4001;
+  // Vercel's zero-config NestJS support sets PORT and expects the app to
+  // bind to it; SECRETS_SERVICE_PORT remains the local multi-service dev
+  // default (see .env.example) so `pnpm start:dev` still works unchanged.
+  const port = process.env.PORT ?? process.env.SECRETS_SERVICE_PORT ?? 4001;
   await app.listen(port);
   // eslint-disable-next-line no-console
   console.log(

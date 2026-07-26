@@ -386,6 +386,18 @@ Caught during the Milestone 1 documentation and compliance verification pass (ta
 
 ---
 
+## Round 13 — Infrastructure: All Backend Services Deploy to Vercel, Not Railway/Fly.io (user-directed change)
+
+`engineering-roadmap.md` §4's locked stack states Infrastructure as "Docker, GitHub Actions, Vercel (frontend), Railway or Fly.io (early backend)" — Vercel was scoped to the Next.js frontend only, with backend NestJS services planned for Railway or Fly.io. The user directly instructed a root `vercel.json` deploying every Milestone 0/1 backend service (`ai-orchestrator`, `ai-memory-service`, `identity-service`, `knowledge-graph-service`, `object-service`, `search-service`, `secrets-management-service`, `trust-authorization-service`) alongside the web app on Vercel, using Vercel's Services feature (multiple backends + one frontend in a single project, single public routing table via path-prefixed rewrites) — a capability that postdates the original Infrastructure decision.
+
+**Decision:** Superseding the Infrastructure line above: all Milestone 0/1 services, including the web app, deploy via Vercel Services from one `vercel.json` at the repo root. Railway/Fly.io are no longer the backend deployment target unless a future decision reintroduces them (e.g., for a service Vercel's model doesn't fit).
+
+**Mechanism:** Each NestJS service is deployed as a Vercel Function via Vercel's zero-configuration NestJS support (no `buildCommand`/`outputDirectory` needed). This requires each service's `main.ts` to bind to `process.env.PORT` (Vercel's convention) — changed to `process.env.PORT ?? <SERVICE>_PORT ?? <default>` across all 8 backend services, preserving the existing local multi-service dev workflow (each service still defaults to its own fixed port when `PORT` is unset). Public routes are `/api/<service-name>/...`, rewritten by Vercel to the matching service; the web app catches everything else via a final `/(.*)` rewrite.
+
+**Not yet verified (flagged, not silently assumed):** the exact addressing convention for service-to-service calls once deployed (e.g., whether `SessionGuard`'s calls to `IDENTITY_SERVICE_URL` should use the public rewrite path or a private inter-service networking address Vercel Services may offer) — Vercel's own documentation pages were unreachable (403) when this was set up, so this was not confirmed against primary sources beyond search-result summaries. Whoever configures the actual Vercel project's environment variables should confirm the correct value for every `*_SERVICE_URL` / `NEXT_PUBLIC_*_SERVICE_URL` env var against Vercel's current Services documentation before relying on production traffic between services.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.

@@ -21,7 +21,15 @@ Services built so far: Identity, Object, Knowledge Graph, AI Memory, and Search 
 
 ## Technology Stack
 
-Locked per `architecture-decisions.md` Round 6, Decision 4: Next.js/React/TypeScript/Tailwind/shadcn-ui (web), Electron (desktop), React Native + Expo (mobile), NestJS + TypeScript (backend), PostgreSQL + pgvector, Redis, Prisma, Better Auth (Clerk fallback), S3-compatible storage, OpenAI behind an abstract provider interface, Temporal (workflow engine), Docker + GitHub Actions + Vercel + Railway/Fly.io.
+Locked per `architecture-decisions.md` Round 6, Decision 4: Next.js/React/TypeScript/Tailwind/shadcn-ui (web), Electron (desktop), React Native + Expo (mobile), NestJS + TypeScript (backend), PostgreSQL + pgvector, Redis, Prisma, Better Auth (Clerk fallback), S3-compatible storage, OpenAI behind an abstract provider interface, Temporal (workflow engine), Docker + GitHub Actions. Infrastructure/deployment target updated by Round 13 — see Deployment below.
+
+## Deployment
+
+**All services (web app + every backend) deploy to Vercel** via the root `vercel.json`, using Vercel Services (multiple backends and a frontend in one project, one public routing table). This supersedes the original "Vercel frontend / Railway or Fly.io backend" split — see `architecture-decisions.md` Round 13 for the full record, including two things flagged there as **not yet verified against Vercel's primary documentation** (unreachable when this was set up):
+
+- Each backend service is deployed via Vercel's zero-configuration NestJS support (no `buildCommand`/`outputDirectory` needed) as a Vercel Function; every `main.ts` binds to `process.env.PORT` first, falling back to its existing `<SERVICE>_PORT` env var for local dev.
+- Public routes are `/api/<service-name>/...`, each rewritten to the matching service; confirm this against Vercel's current docs before relying on it, since the docs pages 403'd during setup and this was cross-checked via search-result summaries only.
+- **Before deploying**, set every `*_SERVICE_URL` and `NEXT_PUBLIC_*_SERVICE_URL` environment variable in the Vercel project to the correct value for cross-service calls in production (e.g., `IDENTITY_SERVICE_URL` used by every other service's `SessionGuard`) — whether that should be the public rewrite path or a private inter-service address Vercel Services may offer was not confirmed.
 
 ## Local Development
 

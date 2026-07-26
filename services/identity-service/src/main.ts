@@ -21,7 +21,10 @@ async function bootstrap() {
 
   configureApp(app);
 
-  const port = process.env.IDENTITY_SERVICE_PORT ?? 4003;
+  // Vercel's zero-config NestJS support sets PORT and expects the app to
+  // bind to it; IDENTITY_SERVICE_PORT remains the local multi-service dev
+  // default (see .env.example) so `pnpm start:dev` still works unchanged.
+  const port = process.env.PORT ?? process.env.IDENTITY_SERVICE_PORT ?? 4003;
   await app.listen(port);
   // eslint-disable-next-line no-console
   console.log(

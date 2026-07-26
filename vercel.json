@@ -1,0 +1,105 @@
+{
+    "services": {
+        "web": {
+            "root": "apps/web",
+            "framework": "nextjs"
+        },
+        "ai-orchestrator": {
+            "root": "ai/orchestrator",
+            "framework": "nestjs"
+        },
+        "ai-memory-service": {
+            "root": "services/ai-memory-service",
+            "framework": "nestjs"
+        },
+        "identity-service": {
+            "root": "services/identity-service",
+            "framework": "nestjs"
+        },
+        "knowledge-graph-service": {
+            "root": "services/knowledge-graph-service",
+            "framework": "nestjs"
+        },
+        "object-service": {
+            "root": "services/object-service",
+            "framework": "nestjs"
+        },
+        "search-service": {
+            "root": "services/search-service",
+            "framework": "nestjs"
+        },
+        "secrets-management-service": {
+            "root": "services/secrets-management-service",
+            "framework": "nestjs"
+        },
+        "trust-authorization-service": {
+            "root": "services/trust-authorization-service",
+            "framework": "nestjs"
+        }
+    },
+    "rewrites": [
+        {
+            "source": "/api/ai-orchestrator(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "ai-orchestrator"
+            }
+        },
+        {
+            "source": "/api/trust-authorization-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "trust-authorization-service"
+            }
+        },
+        {
+            "source": "/api/secrets-management-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "secrets-management-service"
+            }
+        },
+        {
+            "source": "/api/knowledge-graph-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "knowledge-graph-service"
+            }
+        },
+        {
+            "source": "/api/ai-memory-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "ai-memory-service"
+            }
+        },
+        {
+            "source": "/api/identity-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "identity-service"
+            }
+        },
+        {
+            "source": "/api/object-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "object-service"
+            }
+        },
+        {
+            "source": "/api/search-service(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "search-service"
+            }
+        },
+        {
+            "source": "/(.*)",
+            "destination": {
+                "type": "service",
+                "service": "web"
+            }
+        }
+    ]
+}
