@@ -22,6 +22,8 @@ Authentication and account management, per `docs/architecture-decisions.md` Roun
 - **Email verification is disabled** (`requireEmailVerification: false`). Sending verification emails requires the Integration Layer's email capability, which lands in Milestone 3. Password auth is fully functional without it; this is a real scope boundary, not an oversight.
 - **Account recovery** (password reset) has the same dependency — Better Auth supports it, but wiring the actual email delivery is Milestone 3 work.
 - **Apple Sign In** is configured but untested — no Apple Developer credentials exist in this environment. The Google OAuth path is the one that's been exercised end-to-end.
+- **Biometric unlock** (Batch 1 Decision 3) has no mobile client to apply to yet — the React Native/Expo mobile app isn't built in Milestone 1 at all, so this isn't a gap in this service, just something with nowhere to attach until the mobile app exists.
+- **"Trusted devices"** as a distinct concept isn't implemented beyond Better Auth's native session listing/revocation (which does cover "device management" in the sense of seeing and revoking active sessions). There's no separate device-trust marking/flow yet.
 
 ## Regenerating the Better Auth schema fragment
 

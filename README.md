@@ -6,7 +6,7 @@ A private, AI-first personal operating system — an AI Chief of Staff that orga
 
 LifeOS is built from a frozen Version 1 architecture. Every engineering decision must trace back to these documents:
 
-- [`docs/architecture-decisions.md`](docs/architecture-decisions.md) — the consolidated, authoritative record of all architectural decisions (six rounds), superseding conflicting text in the original specifications. **Read this first.**
+- [`docs/architecture-decisions.md`](docs/architecture-decisions.md) — the consolidated, authoritative record of all architectural decisions (twelve rounds — the first seven from the pre-implementation review, the rest recorded as they surfaced during Milestone 1 implementation), superseding conflicting text in the original specifications. **Read this first.**
 - [`docs/architecture-compliance-report.md`](docs/architecture-compliance-report.md) — the pre-implementation consistency audit and open findings.
 - [`docs/engineering-roadmap.md`](docs/engineering-roadmap.md) — the milestone sequence, dependency graph, repository structure, and per-milestone Definition of Done.
 
@@ -14,7 +14,9 @@ The Source of Truth Hierarchy (see `architecture-decisions.md`, Round 6, Decisio
 
 ## Status
 
-**Milestone 1 — Foundation** (in progress). Milestone 0 (Secrets Management, Trust & Authorization) is complete. See `docs/engineering-roadmap.md` §2 for scope and Definition of Done.
+**Milestone 1 — Foundation**: implementation complete, pending the Milestone 1 Review Report and approval to begin Milestone 2. Milestone 0 (Secrets Management, Trust & Authorization) is complete. See `docs/engineering-roadmap.md` §2 for scope and Definition of Done.
+
+Services built so far: Identity, Object, Knowledge Graph, AI Memory, and Search (`services/`); the AI Provider Interface and Chief of Staff orchestrator (`ai/`); the web app with sign-up/sign-in, onboarding, and the minimum-viable Dashboard (`apps/web`).
 
 ## Technology Stack
 
@@ -34,4 +36,4 @@ pnpm --filter @lifeos/db run seed   # seeds the Product and AI Constitution sing
 
 `pnpm -r` commands (including the root `build` script) respect the workspace dependency graph automatically, so `pnpm build` always builds `@lifeos/domain-model` and `@lifeos/db` before any service that depends on them — no manual ordering needed.
 
-Per-service run instructions live in each service's own README under `services/`.
+Per-service run instructions live in each service's own README under `services/`, `ai/`, and `apps/web`. Milestone 1's full stack needs, at minimum: `identity-service` (auth, everything else's `SessionGuard` depends on it) → `object-service` (Core Objects + Constitution) → `ai-memory-service` and `search-service` → `ai/orchestrator` (Chief of Staff) → `apps/web`. `knowledge-graph-service` has no cross-service dependents yet but is independent to start.

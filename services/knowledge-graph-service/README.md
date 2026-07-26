@@ -6,7 +6,7 @@ The Object Relationships store — typed, polymorphic edges between any two obje
 
 - `POST /relationships` — create a typed edge (`sourceObjectType`, `sourceObjectId`, `relationshipType`, `targetObjectType`, `targetObjectId`, optional `strength`). `relationshipType` is the closed 11-value taxonomy from the Domain Model's "Universal Relationship Rules" (`BELONGS_TO`, `CONTAINS`, `SUPPORTS`, `CREATED_FROM`, `REFERENCES`, `DEPENDS_ON`, `BLOCKS`, `GENERATED`, `ASSIGNED_TO`, `REVIEWED_IN`, `ARCHIVED_WITH`).
 - `GET /relationships?objectType=X&objectId=Y` — every edge touching an object, in either direction.
-- `GET /relationships/traverse?objectType=X&objectId=Y&depth=N` — breadth-first traversal outward up to `depth` hops (clamped 1–5). This is the mechanism behind the AI Reasoning Graph's traversal chains (Goal → Project → Tasks → ... → Insights) — the Chief of Staff calls this rather than following foreign keys across services.
+- `GET /relationships/traverse?objectType=X&objectId=Y&depth=N` — breadth-first traversal outward up to `depth` hops (clamped 1–5), **priority-based** per Round 3 Decision 3: at each depth, edges are explored strongest-first by `strength`, and results are returned ordered by `(depth asc, strength desc)` with each result's discovering `strength` included — a caller that only consumes the top few results at a depth gets the most relevant ones first without its own ranking pass. This is the mechanism behind the AI Reasoning Graph's traversal chains (Goal → Project → Tasks → ... → Insights) — the Chief of Staff calls this rather than following foreign keys across services.
 - `DELETE /relationships/:id`
 
 Duplicate edges (same source, type, and target) are rejected with 409, per the table's unique constraint.

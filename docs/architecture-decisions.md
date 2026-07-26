@@ -376,6 +376,16 @@ No user decision was required here: this was an unambiguous violation of an alre
 
 ---
 
+## Round 12 — Knowledge Graph Priority-Based Traversal (implementation gap, self-corrected during Milestone 1 compliance verification)
+
+Round 3, Decision 3 requires the Object Relationship Store to support "indexed relationship traversal, relationship-type indexing, object-type indexing, temporal filtering, and priority-based traversal." The first four were present in the Knowledge Graph Service from its initial build (`@@index` on `relationshipType`, `sourceObjectType`+`sourceObjectId`, `targetObjectType`+`targetObjectId`, and `createdAt`), but `RelationshipsService.traverse()` was a plain unweighted breadth-first search — it did not use the `strength` field at all, so "priority-based traversal" was not actually satisfied. This was missed at the time because manual verification confirmed traversal *worked*, not that it honored priority, and no test exercised more than one edge at the same depth.
+
+**Correction:** `traverse()` now orders edge exploration by `strength` descending within each depth level (via `orderBy: { strength: 'desc' }`), records the highest-strength edge that discovered each node, and returns results sorted by `(depth ascending, strength descending)`. A caller consuming only the top few results at a given depth — e.g., context-assembly ranking's "relationship distance" factor (Round 3 Decision 4) — now gets the most relevant edges first without a separate ranking pass. Test coverage added confirming a stronger edge is returned before a weaker one at the same depth.
+
+Caught during the Milestone 1 documentation and compliance verification pass (task: re-check every Engineering Roadmap Milestone 1 bullet against the actual codebase), not by the user — recorded here per the same self-correction precedent as Round 11.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.

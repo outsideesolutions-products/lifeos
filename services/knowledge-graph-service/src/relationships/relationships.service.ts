@@ -78,14 +78,28 @@ export class RelationshipsService {
    * services, since most of those connections live in this graph, not in
    * direct foreign keys.
    */
+  /**
+   * Priority-based traversal (Round 3 Decision 3: "indexed relationship
+   * traversal, relationship-type indexing, object-type indexing, temporal
+   * filtering, and priority-based traversal"). BFS still visits every edge
+   * within `maxDepth` — priority here governs traversal order and, more
+   * importantly, the order results are returned in: at each depth, edges
+   * are explored strongest-first, and a node's recorded strength is the
+   * highest-strength edge that reached it. Callers that only need the top
+   * few results at a given depth (e.g. context-assembly ranking, Round 3
+   * Decision 4's "relationship distance" factor) get the most relevant
+   * ones first without needing their own ranking pass.
+   */
   async traverse(
     start: ObjectRef,
     maxDepth: number,
     actor: AuthenticatedActor,
-  ): Promise<{ depth: number; objectType: string; objectId: string }[]> {
-    const visited = new Map<string, number>();
+  ): Promise<
+    { depth: number; objectType: string; objectId: string; strength: number }[]
+  > {
+    const visited = new Map<string, { depth: number; strength: number }>();
     const key = (ref: ObjectRef) => `${ref.objectType}::${ref.objectId}`;
-    visited.set(key(start), 0);
+    visited.set(key(start), { depth: 0, strength: 1 });
 
     let frontier: ObjectRef[] = [start];
     for (let depth = 1; depth <= maxDepth && frontier.length > 0; depth++) {
@@ -97,10 +111,12 @@ export class RelationshipsService {
             { targetObjectType: ref.objectType, targetObjectId: ref.objectId },
           ]),
         },
+        orderBy: { strength: 'desc' },
       });
 
       const nextFrontier: ObjectRef[] = [];
       for (const edge of edges) {
+        const strength = edge.strength ?? 0;
         const candidates: ObjectRef[] = [
           { objectType: edge.sourceObjectType, objectId: edge.sourceObjectId },
           { objectType: edge.targetObjectType, objectId: edge.targetObjectId },
@@ -108,7 +124,7 @@ export class RelationshipsService {
         for (const candidate of candidates) {
           const k = key(candidate);
           if (!visited.has(k)) {
-            visited.set(k, depth);
+            visited.set(k, { depth, strength });
             nextFrontier.push(candidate);
           }
         }
@@ -117,10 +133,11 @@ export class RelationshipsService {
     }
 
     return Array.from(visited.entries())
-      .filter(([, depth]) => depth > 0) // exclude the start node itself
-      .map(([k, depth]) => {
+      .filter(([, v]) => v.depth > 0) // exclude the start node itself
+      .map(([k, v]) => {
         const [objectType, objectId] = k.split('::');
-        return { depth, objectType, objectId };
-      });
+        return { depth: v.depth, objectType, objectId, strength: v.strength };
+      })
+      .sort((a, b) => a.depth - b.depth || b.strength - a.strength);
   }
 }

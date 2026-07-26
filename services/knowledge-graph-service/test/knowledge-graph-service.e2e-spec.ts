@@ -104,6 +104,49 @@ describe('Knowledge Graph Service (e2e)', () => {
       .expect(200);
   });
 
+  it('traverses in priority order: higher-strength edges at the same depth come first', async () => {
+    const hubId = randomUUID();
+    const weakId = randomUUID();
+    const strongId = randomUUID();
+
+    await request(app.getHttpServer())
+      .post('/api/v1/relationships')
+      .set('Cookie', user.cookie)
+      .send({
+        sourceObjectType: 'Project',
+        sourceObjectId: hubId,
+        relationshipType: 'REFERENCES',
+        targetObjectType: 'Note',
+        targetObjectId: weakId,
+        strength: 0.2,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/api/v1/relationships')
+      .set('Cookie', user.cookie)
+      .send({
+        sourceObjectType: 'Project',
+        sourceObjectId: hubId,
+        relationshipType: 'REFERENCES',
+        targetObjectType: 'Note',
+        targetObjectId: strongId,
+        strength: 0.9,
+      })
+      .expect(201);
+
+    const traversal = await request(app.getHttpServer())
+      .get(`/api/v1/relationships/traverse?objectType=Project&objectId=${hubId}&depth=1`)
+      .set('Cookie', user.cookie)
+      .expect(200);
+
+    const ids = traversal.body.map((r: { objectId: string }) => r.objectId);
+    expect(ids.indexOf(strongId)).toBeLessThan(ids.indexOf(weakId));
+    expect(
+      traversal.body.find((r: { objectId: string }) => r.objectId === strongId).strength,
+    ).toBe(0.9);
+  });
+
   it('requires objectType and objectId query params on findForObject', async () => {
     await request(app.getHttpServer())
       .get('/api/v1/relationships')

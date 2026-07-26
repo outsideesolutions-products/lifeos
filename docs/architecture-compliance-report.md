@@ -1,5 +1,41 @@
 # LifeOS — Architecture Compliance Report
 
+**Document Type:** Consistency Audit — now covering both the pre-implementation architecture (v1/v2, unchanged below) and Milestone 1 as actually built (v3 section immediately below)
+**Revision:** v3 — updated after Milestone 1 implementation (`architecture-decisions.md`, Rounds 8–11)
+**Scope (v3 addition):** Re-verification of the same five criteria (Canonical Object Registry completeness, cross-system object representation, taxonomy uniqueness, service alignment, terminology consistency) against the actual Milestone 1 codebase, plus a fresh pass against the Engineering Roadmap's per-service Milestone 1 scope checklist. v1/v2's content (documentary-only, pre-code) is left unchanged below for history.
+
+---
+
+## v3 — Milestone 1 Implementation Compliance
+
+**Verdict: zero Blocking findings against the Milestone 1 codebase.** Four implementation-time findings surfaced during the build, all resolved or explicitly and narrowly scoped as documented, disclosed gaps — none silently dropped. See `architecture-decisions.md` Rounds 8–11 for the full record; summarized here:
+
+- **Round 8 — Object Model Clarification.** The Canonical Object Registry's standalone "Object" entry was corrected to "Universal Base Object (architectural abstraction — not a database table)" once building the Object Service made clear no document had ever modeled a literal shared table. Implementation mechanism: every concrete Prisma model repeats the universal fields as real columns, checked against the shared `UniversalBaseObject` TypeScript contract via `ConformsToUniversalBaseObject` at build/test time.
+- **Round 9 — AI Provider Interface Classification Gate.** An inference (flagged, not a contradiction) about which Data Classification tiers require explicit authorization before reaching an external AI provider: Tiers 1–2 do, Tiers 3–4 don't, read from Round 1 Decision 4's tier definitions. Recommended for a one-line confirmation before Milestone 2's Health/Finance/Legal domains generate routine Tier 2 content.
+- **Round 10 — Personal Constitution Data Classification (user-decided).** A genuine contradiction, not an inference: the Constitution schema had defaulted `PersonalConstitution` and its 7 sub-entities to Tier 1 (Local Only) in isolation, which would have blocked the Chief of Staff from consulting it at all under Round 9's gate. Presented to the user with three options; resolved by reclassifying to Tier 3 (AI Available), consistent with `ProductConstitution`/`AIConstitution`.
+- **Round 11 — Search Service Corrected to Use Service Interfaces.** A self-caught implementation defect: Search Service initially queried other services' tables directly via its own Prisma connection, violating the Engineering Roadmap's explicit "internal services never share a database directly — only through service interfaces." Corrected to compose results from Object Service's and AI Memory Service's own HTTP APIs before being presented as complete.
+
+### Engineering Roadmap Milestone 1 scope checklist, verified against the codebase
+
+Every bullet in `engineering-roadmap.md`'s Milestone 1 scope is implemented, with the following gaps disclosed (all pre-existing or explicitly out of reach for Milestone 1, not oversights):
+
+- **Authentication**: email/password, Google OAuth, passkeys, MFA (TOTP + backup codes), session/device listing and revocation are built and verified end-to-end. Account recovery and email verification are documented Milestone 3 dependencies (need the Integration Layer's email capability — identity-service's README). **Newly disclosed here**: "biometric unlock (mobile)" has no mobile client to attach to yet (no mobile app exists in Milestone 1), and "trusted devices" as a distinct trust-marking concept (beyond native session list/revoke) isn't implemented.
+- **Database**: still waiting on the standalone Database Standards Specification the roadmap flags as "not yet written" (Round 5 Decision 6) — a pre-existing gap from before Milestone 1, not introduced by it. Soft-delete, cascade behavior, and indexing conventions were followed by direct application of the frozen decisions (Round 5 Decisions 7–8) in the absence of that document.
+- **Knowledge Graph Foundation**: Round 3 Decision 3 requires "indexed relationship traversal, relationship-type indexing, object-type indexing, temporal filtering, and priority-based traversal." The first four were present from the initial build; **priority-based traversal was missing** (`traverse()` was a plain unweighted BFS) until this compliance pass caught it — fixed by ordering exploration and results by relationship `strength` at each depth, with test coverage added (`knowledge-graph-service.e2e-spec.ts`).
+- Every other Milestone 1 bullet (Core Object Engine, AI Memory Foundation, AI Provider Interface, Three-Constitution model + Cold Start Phase 1, First-Run Experience, Dashboard, Search, Chief of Staff baseline) matches its roadmap description with no further gaps found; see each service's own README for what was verified and how.
+
+### Re-verification against the original five criteria
+
+- **Canonical Object Registry completeness**: every object type touched by Milestone 1 code (Workspace, Folder, Tag, Label, the three Constitutions and 7 sub-entities, MemoryEntry, ObjectRelationship) is registered per Round 7/8. No new unregistered object type was introduced.
+- **Cross-system object representation**: Constitution content flows consistently from Object Service through the AI Provider Interface's classification gate into the Chief of Staff's composed prompt; Search Service and Knowledge Graph Service reference objects by the same `(objectType, objectId)` convention throughout.
+- **Taxonomy uniqueness**: `MemoryType` (8 values), `RelationshipType` (11 values), `Priority`, and Data Classification tiers are each defined exactly once (in `@lifeos/db` or `@lifeos/domain-model`) and imported everywhere they're used — no service redefines them.
+- **Service alignment**: every service's actual responsibilities match its README's stated scope; the one misalignment found (Search Service's direct DB access) was Round 11's self-correction.
+- **Terminology consistency**: "Personal Constitution," "Cold Start phase," "Data Classification tier," and "Universal Base Object" are used identically across all service READMEs and code comments.
+
+---
+
+## v1/v2 — Pre-Implementation Consistency Audit (unchanged, kept for history)
+
 **Document Type:** Pre-Implementation Consistency Audit
 **Revision:** v2 — updated after the Post-Milestone-0 Cleanup decisions (`architecture-decisions.md`, Round 7)
 **Scope:** Full cross-reference of the 15 frozen specifications plus the 7 rounds of architectural decisions in `docs/architecture-decisions.md`, checked against the verification criteria requested: Canonical Object Registry completeness, cross-system object representation, taxonomy uniqueness, service alignment, terminology consistency, and unresolved contradictions.
