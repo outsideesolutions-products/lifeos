@@ -340,6 +340,20 @@ Do not create an `Object` database table unless a future architectural revision 
 
 ---
 
+## Round 9 — AI Provider Interface Classification Gate (raised during Milestone 1 implementation)
+
+Flags an inference, not a contradiction — same convention as the Architecture Compliance Report's R5 finding (non-blocking, confirm when convenient).
+
+While implementing the AI Provider Interface (`ai/providers`), Round 3 Decision 8 ("Data Classification Enforcement... the AI Provider Interface validates classification before every external AI request; protected objects never leave the approved execution environment without explicit user authorization") required a concrete rule: which of the four Data Classification tiers (Round 1, Decision 4) count as "protected" and therefore need that explicit authorization, versus which are already cleared for AI use.
+
+**Reading applied:** Decision 4 names Tier 3 "AI Available" and states only Tier 3 "may be shared with AI services," with Tier 4 "safe for integrations/publishing." Tier 2 ("Private") is described only in terms of cloud storage sync and on-demand summarization — never AI sharing — and Tier 1 ("Local Only") explicitly requires approval for any transmission. On that basis, the AI Provider Interface's classification gate (`ai/providers/src/classification-gate.ts`) treats Tiers 1 and 2 as requiring an explicit per-request `authorizedForExternalAI` flag before any external provider call, and Tiers 3 and 4 as needing none.
+
+**Impact:** Low for Milestone 1 (no domain data yet generates Tier 2 content routinely). Becomes materially important from Milestone 2 onward, since Health, Finance, and Legal objects — all Tier 2 by Decision 4 — are exactly the kind of data the AI is expected to reason over routinely in later milestones. If the intent was instead that Tier 2 content may flow to AI by default (e.g., "summarized only when necessary" was meant to describe the AI-facing behavior, not just cloud sync), this gate will need a one-line correction before that domain work begins.
+
+**Recommended resolution path:** A one-line confirmation of this reading (or a correction) before Milestone 2's domain modules start generating Tier 2 content the AI needs routine access to.
+
+---
+
 ## Status
 
 Version 1 of the LifeOS architecture is **frozen** as of this document. Every decision above is a technical contract. Architecture changes require the Architectural Change Process (Engineering Standards §25: description, motivation, alternatives considered, impact analysis, migration strategy, risks, rollback plan) and explicit user approval — no exceptions, no silent drift.

@@ -1,0 +1,22 @@
+{
+  "name": "@lifeos/ai-providers",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The AI Provider Interface (architecture-decisions.md Batch 1 Decision 5): a model-agnostic abstraction over external LLM providers. OpenAI is the only wired provider in Milestone 1; the task-size routing hook (lightweight/reasoning/large-context) and fallback-provider mechanism exist now so adding Anthropic/Google/local providers later requires no change to any caller. Also enforces Data Classification before every external AI request (Round 3 Decision 8) — this is the one gate every caller goes through, so no business logic ever talks to a vendor SDK directly.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@lifeos/domain-model": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.7.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.0"
+  }
+}
