@@ -7,8 +7,9 @@ A private, AI-first personal operating system — an AI Chief of Staff that orga
 LifeOS is built from a frozen Version 1 architecture. Every engineering decision must trace back to these documents:
 
 - [`docs/architecture-decisions.md`](docs/architecture-decisions.md) — the consolidated, authoritative record of all architectural decisions (twelve rounds — the first seven from the pre-implementation review, the rest recorded as they surfaced during Milestone 1 implementation), superseding conflicting text in the original specifications. **Read this first.**
-- [`docs/architecture-compliance-report.md`](docs/architecture-compliance-report.md) — the pre-implementation consistency audit and open findings.
+- [`docs/architecture-compliance-report.md`](docs/architecture-compliance-report.md) — the pre-implementation consistency audit and open findings, plus a v3 section re-verifying compliance against the actual Milestone 1 codebase.
 - [`docs/engineering-roadmap.md`](docs/engineering-roadmap.md) — the milestone sequence, dependency graph, repository structure, and per-milestone Definition of Done.
+- [`docs/milestone-1-review-report.md`](docs/milestone-1-review-report.md) — what was implemented, architecture decisions made during the build, test results, technical debt, and recommendations.
 
 The Source of Truth Hierarchy (see `architecture-decisions.md`, Round 6, Decision 5) governs how to resolve any apparent conflict between documents. Architecture is frozen: changes require the Architectural Change Process (Engineering Standards & Governance §25) and explicit approval — never silent drift.
 
