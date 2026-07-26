@@ -1,0 +1,7 @@
+packages:
+  - "services/*"
+  - "domains/*"
+  - "packages/*"
+  - "ai/*"
+  - "integrations/*"
+  - "apps/*"

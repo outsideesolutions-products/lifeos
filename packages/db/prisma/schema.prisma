@@ -1,0 +1,113 @@
+// LifeOS — Shared Prisma Schema
+//
+// Milestone 0 scope only. Tables here back the Secrets Management Service
+// and the Trust & Authorization Service skeleton (see
+// docs/engineering-roadmap.md §2, Milestone 0).
+//
+// Domain object tables (the Canonical Object Registry from
+// docs/architecture-decisions.md, Round 1 Decision 1) are NOT modeled here
+// yet. They land starting Milestone 1, and only once the Blocking findings
+// B1 (no Constitution domain in the registry) and B2 (Priority/Risk Level
+// value sets undefined) in docs/architecture-compliance-report.md are
+// resolved by explicit decision.
+//
+// `workspaceId` fields below are plain strings, not foreign keys, because
+// the Workspace object itself is a Milestone 1 deliverable (Core Object
+// Engine) and does not exist as a modeled entity yet. This is intentional
+// forward-compatibility with Round 3 Decision 1 (every persistent object
+// carries Workspace ID + Owner ID), not an oversight.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Secrets Management Service --------------------------------------------
+
+// A single managed secret (credential, API key, OAuth token, encryption key,
+// certificate). The raw value is never stored in plaintext — see the
+// EncryptionProvider abstraction in
+// services/secrets-management-service/src/encryption/.
+model Secret {
+  id                 String    @id @default(uuid())
+  workspaceId        String?
+  key                String // logical name, e.g. "integration.google-calendar.oauth-token"
+  scope              String // which service/integration owns this secret
+  encryptedValue     Bytes
+  encryptionProvider String // which EncryptionProvider encrypted this (e.g. "local", "aws-kms")
+  encryptionKeyId    String // key/version identifier within that provider
+  version            Int       @default(1)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  rotatedAt          DateTime?
+  revokedAt          DateTime?
+
+  auditLogs SecretAuditLog[]
+
+  @@unique([workspaceId, key, version])
+  @@index([scope])
+  @@index([workspaceId])
+}
+
+enum SecretAuditAction {
+  CREATED
+  ACCESSED
+  ROTATED
+  REVOKED
+}
+
+// Immutable audit trail for every secret lifecycle event. Never modified
+// after creation — this table is part of the "Immutable History" data
+// lifecycle stage (Round 3, Decision 2).
+model SecretAuditLog {
+  id        String            @id @default(uuid())
+  secretId  String
+  secret    Secret            @relation(fields: [secretId], references: [id])
+  action    SecretAuditAction
+  actorType String // "user" | "ai" | "automation" | "integration" | "system"
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime          @default(now())
+
+  @@index([secretId])
+  @@index([createdAt])
+}
+
+// --- Trust & Authorization Service ------------------------------------------
+
+enum AuthorizationDecisionResult {
+  ALLOW
+  DENY
+  REQUIRE_APPROVAL
+}
+
+// Every authorization evaluation is recorded here, per the Security by
+// Default principle (Round 3): a decision must combine Identity, Integration
+// Trust, Data Classification, Action Risk, Automation Permission, User
+// Preferences, and Current Context — never a single subsystem's say-so.
+// This table is the audit log for those evaluations; it does not yet
+// implement the evaluation logic itself (that logic depends on Identity,
+// Automation, and Integration data that don't exist until later milestones
+// — see the Milestone 0 scope note in docs/engineering-roadmap.md).
+model AuthorizationDecision {
+  id          String                       @id @default(uuid())
+  workspaceId String?
+  requestId   String // correlates to the originating request/trace
+  actorType   String // "user" | "ai" | "automation" | "integration"
+  actorId     String?
+  actionType  String // e.g. "send_email", "create_task", "execute_automation"
+  objectType  String?
+  objectId    String?
+  result      AuthorizationDecisionResult
+  reasonCode  String
+  inputs      Json // snapshot of the 7 combined inputs considered, per Security by Default
+  createdAt   DateTime                     @default(now())
+
+  @@index([workspaceId])
+  @@index([actorType, actorId])
+  @@index([createdAt])
+}
